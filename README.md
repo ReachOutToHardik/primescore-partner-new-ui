@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PrimeScore Partner Portal
 
-## Getting Started
+Partner platform UI for PrimeScore DSAs and channel partners. Credit Rectification is the main product; loans, cards, accounts and insurance are side products.
 
-First, run the development server:
+Built with Next.js 16 (App Router), React 19, Tailwind CSS 4 and lucide icons. Works as an installable PWA on phones and has its own desktop layout.
+
+> **UI only.** All data (partner, leads, payouts, products) is mock data in `src/lib/data.ts`. Login, Add case and KYC validate input but don't send anything anywhere yet.
+
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. To try it on a phone on the same Wi-Fi, open `http://<your-computer-ip>:3000` (local network addresses are allowed in `next.config.ts`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Install and offline support only run in a production build:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Screens
 
-To learn more about Next.js, take a look at the following resources:
+| Route | What it is |
+| --- | --- |
+| `/` | Home: earnings, Credit Rectification, needs-attention list, products, training (desktop gets a dashboard) |
+| `/leads` | Rectification cases and other referrals (table on desktop) |
+| `/leads/[id]` | Case detail: score before/after, stage timeline, errors being fixed |
+| `/leads/new` | Add case or lead form |
+| `/sell`, `/sell/[slug]` | Product catalogue and product detail |
+| `/learn` | Trainings, courses and videos, filtered by topic |
+| `/earnings` | Balance, payout history, withdraw |
+| `/account`, `/kyc` | Profile, settings, 4-step KYC |
+| `/login` | Mobile + OTP login |
+| `/notifications`, `/soon` | Notifications, placeholder for unbuilt features |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Where things live
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/lib/data.ts`: all mock data, product colours by category, rectification stages
+- `src/app/globals.css`: brand tokens (navy, gauge red/yellow/green), type and motion
+- `src/components/app-shell.tsx`: sidebar, top bar and bottom tab bar
+- `src/components/ui.tsx`: shared panels, rows, avatar
+- `scripts/gen-icons.mjs`: regenerates the PWA icons from the logo mark
