@@ -6,7 +6,24 @@ import { BrandMark } from "./brand";
 
 type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
-const DISMISS_KEY = "ps-install-dismissed";
+const LAST_SHOWN_KEY = "ps-install-last-shown";
+const ONE_DAY = 24 * 60 * 60 * 1000;
+
+/** The banner may show at most once every 24 hours (per browser). */
+function canShowToday() {
+  try {
+    const last = Number(localStorage.getItem(LAST_SHOWN_KEY) || 0);
+    return Date.now() - last >= ONE_DAY;
+  } catch {
+    return true;
+  }
+}
+
+function markShown() {
+  try {
+    localStorage.setItem(LAST_SHOWN_KEY, String(Date.now()));
+  } catch {}
+}
 
 /**
  * Registers the service worker and shows an "Install app" sheet:
@@ -32,15 +49,13 @@ export function InstallPrompt() {
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    let dismissed = false;
-    try {
-      dismissed = localStorage.getItem(DISMISS_KEY) === "1";
-    } catch {}
-    if (standalone || dismissed) return;
+    if (standalone || !canShowToday()) return;
 
     const onPrompt = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BIPEvent);
+      if (!canShowToday()) return;
+      markShown();
       setOpen(true);
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
@@ -48,6 +63,8 @@ export function InstallPrompt() {
     const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (isIos) {
       const t = setTimeout(() => {
+        if (!canShowToday()) return;
+        markShown();
         setIos(true);
         setOpen(true);
       }, 2500);
@@ -61,9 +78,6 @@ export function InstallPrompt() {
 
   function close() {
     setOpen(false);
-    try {
-      localStorage.setItem(DISMISS_KEY, "1");
-    } catch {}
   }
 
   async function install() {
